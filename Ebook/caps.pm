@@ -3,7 +3,7 @@ require Exporter;
 @ISA = Exporter;
 @EXPORT = qw( caps2italic caps2bold changeCase );
 
-$Ebook::caps::VERSION = "2012.04.02";
+$Ebook::caps::VERSION = "2015.12.22;
 sub Version { $VERSION; }
 
 =head1 NAME
@@ -16,12 +16,13 @@ Ebook::caps.pm
 
     $string = caps2italic ($string);
     $string = caps2bold ($string);
+    $string = changeCase ($string);
 
 All these functions also work in an array context.
 
 =head1 DESCRIPTION
 
-This package contains a number of subroutines which perform various
+This package contains subroutines which perform various
 conversions on plain text to XHTML, according to commonly accepted
 standards.
 
@@ -121,32 +122,15 @@ sub changeCase {
 
 __END__
 
-=head1 INSTALLATION
-
-To install this module, all you have to do is 
-
-    1) untar the distribution into an empty directory
-    2) type 'perl Makefile.PL'
-    3) type 'make install'
-
-The module will be copied to system directories and then be available
-for use using the 
-
-    use Ebook::caps;
-
-directive.
-
 =head1 AUTHOR
 
-Steve Thomas <stephen.thomas@adelaide.edu.au>
+Steve Thomas 
 
 =head1 VERSION
 
-This is version 2012.04.02
+This is version 2015.12.22
 
 =head1 LICENCE
-
-Copyright (c) 2006,2012 Stephen George Anthony Thomas
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the

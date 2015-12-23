@@ -73,39 +73,19 @@ LINE: while (<>) {
 	next LINE;
     }
 
+    # deal with lines broken by hyphenation
     if ($remove_hyphenation) { remove_hyphenation(); }
 
-    # We can also pre-mark tables by enclosing with the <table> tag
-    # convert table section rows to cells: 
-    if (/<table/i .. /<\/table/i)
-    {
-	if (/<table/i) {		# start of table
-	    print $_, "\n";
-	    next LINE;
-	}
-	if (/<\/table/i) {		# end of table
-	    print $_, "\n";
-	    next LINE;
-	}
-	$_ = Ebook::Convert::reserved($_) if ($convert_reserved);
-	s/^\s*\|*/<tr><td>/;		# first non-space starts first cell
-	s/\|*\s*$/<\/td><\/tr>/;	# terminate row : assume one line = one row
-	s/( {2,}|\||\t)/<\/td><td>/g;	# 2 or more blanks or pipe or tab --> cell start
-	print $_, "\n";
-	next LINE;
-    }
-    else
-    {
-	# convert HTML reserved chars., &, <, >.
-	$_ = Ebook::Convert::reserved($_) if ($convert_reserved);
-    }
+    # convert HTML reserved chars., &, <, >.
+    $_ = Ebook::Convert::reserved($_) if ($convert_reserved);
 
+    # convert plain to curly quotes
     if ($convert_quotes) { $_ = Ebook::Convert::quotes($_); }
 
     # automatically generate tables
     # note that there must be at least two columns (duh!)
     # assume one line = one row
-    if ($make_tables)
+    if ( $make_tables and /( {2,}|\||\t)/ )
     {
 	unless ($#block_list >= 0 and $block_list[$#block_list] eq 'table') {
 	    close_block();		# close previous block
@@ -127,17 +107,14 @@ LINE: while (<>) {
 	convert_heading('h3');
     }
 
+    # change _italic_, /italic/, and *bold* appropriately
     if ($canonical) { Ebook::Convert::canonical(); }
 
-    if ($all_caps_bold) {
-	# change UPPERCASE words to bold, capitalised
-	$_ = caps2bold($_); 
-    }
+    # change UPPERCASE words to bold, capitalised
+    if ($all_caps_bold) { $_ = caps2bold($_); }
 
-    if ($all_caps_italic) {
-	# change UPPERCASE words to italic, lowercase
-	$_ = caps2italic($_); 
-    }
+    # change UPPERCASE words to italic, lowercase
+    if ($all_caps_italic) { $_ = caps2italic($_); }
 
     # Convert (foot)notes
     if ($note_re) {
@@ -169,7 +146,7 @@ LINE: while (<>) {
     # convert tab to 8 spaces
     s/\t/        /g;
 
-    # blockquote lines matching the bq re
+    # blockquote lines matching the bq re (default is /^  /)
     if ($bq_re and /$bq_re/o) {
 	unless ($#block_list >= 0 and $block_list[$#block_list] eq $bq_tag) {
 	    close_block();	# close previous block
@@ -195,10 +172,12 @@ LINE: while (<>) {
 
     # finished conversions on this line -- print it
     if ($#block_list >= 0 and $block_list[$#block_list] eq $bq_tag) {
+	# if it's in a blockquote, replace the indent with ...
 	if (/^( +)/) {
 	    my $indent = $1;
 	    $indent =~ s/$bq_re//;
 	    if ($bq_start eq '<p>')
+	    # ... an indent class if the line is a <p>aragraph
 	    {
 		my $i = length($indent);
 		s/^ +/<p class="i$i">/;
@@ -206,14 +185,17 @@ LINE: while (<>) {
 	    }
 	    else
 	    {
-		$indent =~ s/ /&nbsp; /g;
+	    # ... an appropriate number of nbsp's otherwise
+		$indent =~ s/  /&nbsp; /g;
 		s/^ +/$indent/;
 		print $bq_start, $_, $bq_end, "\n";
 	    }
 	} else {
 	    print $_, "\n";
 	}
-    } else {
+    }
+    else
+    {
 	print $_, "\n";
     }
 }

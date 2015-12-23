@@ -1,9 +1,10 @@
 package Ebook::caps;
+
 require Exporter;
 @ISA = Exporter;
 @EXPORT = qw( caps2italic caps2bold changeCase );
 
-$Ebook::caps::VERSION = "2015.12.22;
+$Ebook::caps::VERSION = "2015.12.22";
 sub Version { $VERSION; }
 
 =head1 NAME
@@ -44,6 +45,7 @@ E.g.
     => My <em>hovercraft</em> is full of <em>eels</em>!
 
 =cut
+
 
 # set up various values -- these are for HTML. They are defined here
 # to make it easy to change for other markup schema, such as TEI.
